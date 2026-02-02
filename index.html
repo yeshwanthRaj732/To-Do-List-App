@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Advanced To-Do List</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f2f2f2;
+            padding: 40px;
+        }
+
+        .container {
+            max-width: 450px;
+            margin: auto;
+            background: white;
+            padding: 20px;
+            border-radius: 6px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        input {
+            width: 65%;
+            padding: 8px;
+        }
+
+        button {
+            padding: 8px;
+            cursor: pointer;
+            margin-left: 5px;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+            margin-top: 20px;
+        }
+
+        li {
+            background: #eee;
+            margin-bottom: 10px;
+            padding: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .btn {
+            border: none;
+            padding: 5px 8px;
+            margin-left: 3px;
+        }
+
+        .delete {
+            background: red;
+            color: white;
+        }
+
+        .edit {
+            background: orange;
+            color: white;
+        }
+
+        .done {
+            background: green;
+            color: white;
+        }
+
+        .clear {
+            background: black;
+            color: white;
+            width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>To-Do List App</h1>
+
+    <input type="text" id="taskInput" placeholder="Enter a task">
+    <button onclick="addTask()">Add</button>
+
+    <ul id="taskList"></ul>
+
+    <button class="clear" onclick="clearAll()">Clear All Tasks</button>
+</div>
+
+<script>
+    let tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+
+    function saveTasks() {
+        localStorage.setItem("tasks", JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+        const list = document.getElementById("taskList");
+        list.innerHTML = "";
+
+        tasks.forEach((task, index) => {
+            const li = document.createElement("li");
+
+            li.innerHTML = `
+                <span class="${task.completed ? 'completed' : ''}">
+                    ${task.text}
+                </span>
+                <div>
+                    <button class="btn done" onclick="toggleDone(${index})">✔</button>
+                    <button class="btn edit" onclick="editTask(${index})">✏</button>
+                    <button class="btn delete" onclick="deleteTask(${index})">❌</button>
+                </div>
+            `;
+
+            list.appendChild(li);
+        });
+    }
+
+    function addTask() {
+        const input = document.getElementById("taskInput");
+        const text = input.value.trim();
+
+        if (text === "") {
+            alert("Please enter a task!");
+            return;
+        }
+
+        tasks.push({ text: text, completed: false });
+        input.value = "";
+        saveTasks();
+        renderTasks();
+    }
+
+    function deleteTask(index) {
+        tasks.splice(index, 1);
+        saveTasks();
+        renderTasks();
+    }
+
+    function toggleDone(index) {
+        tasks[index].completed = !tasks[index].completed;
+        saveTasks();
+        renderTasks();
+    }
+
+    function editTask(index) {
+        const newText = prompt("Edit task:", tasks[index].text);
+        if (newText !== null && newText.trim() !== "") {
+            tasks[index].text = newText;
+            saveTasks();
+            renderTasks();
+        }
+    }
+
+    function clearAll() {
+        if (confirm("Are you sure you want to delete all tasks?")) {
+            tasks = [];
+            saveTasks();
+            renderTasks();
+        }
+    }
+
+    renderTasks();
+</script>
+
+</body>
+</html>
